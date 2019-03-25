@@ -90,6 +90,9 @@ class CameraViewModel(val activity: AppCompatActivity)
     }
 
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
+        val image = it.acquireNextImage()
+        Log.e(TAG,"onImageAvailableListener")
+        image.close()
         //        backgroundHandler?.post(ImageSaver(it.acquireNextImage(), file))
     }
 
@@ -103,8 +106,8 @@ class CameraViewModel(val activity: AppCompatActivity)
         configureTransform(width, height)
         val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
-            // Wait for camera to open - 2.5 seconds is sufficient
-            if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+            // Wait for camera to open - 3 seconds is sufficient
+            if (!cameraOpenCloseLock.tryAcquire(3000, TimeUnit.MILLISECONDS)) {
                 throw RuntimeException("Time out waiting to lock camera opening.")
             }
             manager.openCamera(cameraId, stateCallback, backgroundHandler)
@@ -136,8 +139,13 @@ class CameraViewModel(val activity: AppCompatActivity)
                 val largest = Collections.max(
                     Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
                     CompareSizesByArea())
-                imageReader = ImageReader.newInstance(largest.width, largest.height,
-                    ImageFormat.JPEG, /*maxImages*/ 2).apply {
+
+                val imageProcessingSize = chooseSize(
+                    map.getOutputSizes(ImageFormat.YUV_420_888),
+                    640, 360)
+
+                imageReader = ImageReader.newInstance(imageProcessingSize.width, imageProcessingSize.height,
+                    ImageFormat.YUV_420_888, /*maxImages*/ 2).apply {
                     setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
                 }
 
@@ -227,8 +235,6 @@ class CameraViewModel(val activity: AppCompatActivity)
 
     private fun createCameraPreviewSession() {
         try {
-
-//            val texture = binding.textureView.surfaceTexture
             val texture = surfaceTexture
 
             // We configure the size of default buffer to be the size of camera preview we want.
@@ -238,10 +244,9 @@ class CameraViewModel(val activity: AppCompatActivity)
             val surface = Surface(texture)
 
             // We set up a CaptureRequest.Builder with the output Surface.
-            previewRequestBuilder = cameraDevice!!.createCaptureRequest(
-                CameraDevice.TEMPLATE_PREVIEW
-            )
+            previewRequestBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             previewRequestBuilder.addTarget(surface)
+            previewRequestBuilder.addTarget(imageReader?.surface)
 
             // Here, we create a CameraCaptureSession for camera preview.
             cameraDevice?.createCaptureSession(
@@ -295,6 +300,47 @@ class CameraViewModel(val activity: AppCompatActivity)
             }
         }
         return swappedDimensions
+    }
+
+    private fun chooseSize(choices: Array<Size>,
+                           desiredWidth:Int,
+                           desiredHeight:Int):Size{
+
+        val area = desiredWidth * desiredHeight
+
+        var diff = Integer.MAX_VALUE
+        var finalSize = Size(0,0)
+        for(size in choices){
+            val tempDiff = Math.abs(area - size.width * size.height)
+            if(diff > tempDiff){
+                diff = tempDiff
+                finalSize = size
+            }
+        }
+
+//        var width:Int = desiredWidth
+//        var height:Int = desiredHeight
+//        if(desiredWidth < desiredHeight){
+//            width = desiredHeight
+//            height = desiredWidth
+//        }
+//        var aspectRatio = width.toFloat()/ height.toFloat()
+//
+//        val candidateSize = ArrayList<Size>()
+//        for(size in choices){
+//            if(size.width.toFloat()/size.height.toFloat() == aspectRatio){
+//                candidateSize.add(size)
+//            }
+//        }
+//        var finalSize = Size(0,0)
+//        var diff = Integer.MAX_VALUE
+//        for(size in candidateSize){
+//            if(diff > size.width - width){
+//                finalSize = size
+//                diff = Math.abs(size.width-width)
+//            }
+//        }
+        return finalSize
     }
 
     private fun chooseOptimalSize(choices: Array<Size>,
