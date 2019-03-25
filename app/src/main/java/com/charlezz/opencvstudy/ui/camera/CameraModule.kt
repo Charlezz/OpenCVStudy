@@ -1,6 +1,5 @@
 package com.charlezz.opencvstudy.ui.camera
 
-import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import com.charlezz.opencvstudy.R
 import com.charlezz.opencvstudy.databinding.ActivityCameraBinding
@@ -21,8 +20,7 @@ abstract class CameraModule {
 
         @JvmStatic
         @Provides
-        @ActivityScope
-        fun provideViewModel(activity: CameraActivity) = ViewModelProviders.of(activity).get(CameraViewModel::class.java)
+        fun provideViewModel(activity: CameraActivity) = CameraViewModel(activity)
     }
 
 }
