@@ -1,8 +1,6 @@
 package com.charlezz.opencvstudy.ui.camera
 
 import android.os.Bundle
-import android.util.SparseIntArray
-import android.view.Surface
 import android.view.View
 import com.charlezz.opencvstudy.databinding.ActivityCameraBinding
 import dagger.android.support.DaggerAppCompatActivity
@@ -17,7 +15,6 @@ class CameraActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var viewModel:CameraViewModel
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,27 +32,11 @@ class CameraActivity : DaggerAppCompatActivity() {
         }
     }
 
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
             viewModel.onRequestPermissionsResult(requestCode, permissions, grantResults)
         } else {
-
-        }
-    }
-
-    companion object {
-
-        private val ORIENTATIONS = SparseIntArray()
-        private val FRAGMENT_DIALOG = "dialog"
-
-        init {
-            ORIENTATIONS.append(Surface.ROTATION_0, 90)
-            ORIENTATIONS.append(Surface.ROTATION_90, 0)
-            ORIENTATIONS.append(Surface.ROTATION_180, 270)
-            ORIENTATIONS.append(Surface.ROTATION_270, 180)
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
@@ -77,13 +58,5 @@ class CameraActivity : DaggerAppCompatActivity() {
                 // Hide the nav bar and status bar
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
-    }
-
-    // Shows the system bars by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private fun showSystemUI() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 }
