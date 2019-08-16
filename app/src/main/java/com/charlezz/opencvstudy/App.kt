@@ -14,5 +14,6 @@ class App : DaggerApplication() {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
         MultiDex.install(this)
+
     }
 }

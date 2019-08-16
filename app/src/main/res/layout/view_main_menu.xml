@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="viewModel" type="com.charlezz.opencvstudy.ui.MainMenu"/>
+        <variable name="handler" type="com.charlezz.opencvstudy.ui.OnItemClickHandler"/>
+    </data>
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                 android:onClick="@{v->handler.onClick(viewModel)}"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="parent"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  android:text="@{viewModel.name}"
+                  android:padding="20dp"
+                  tools:text="Hello World"
+        />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

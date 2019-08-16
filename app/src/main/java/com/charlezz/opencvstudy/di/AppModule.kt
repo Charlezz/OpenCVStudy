@@ -2,7 +2,7 @@ package com.charlezz.opencvstudy.di
 
 import dagger.Module
 
-@Module
+@Module(includes = [ViewModelModule::class])
 class AppModule {
 
 //    @Provides
